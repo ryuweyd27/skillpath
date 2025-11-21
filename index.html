@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillPath - TechSynergy</title>
+    <!-- FontAwesome for Icons (Standard resource) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- CSS VARIABLES (THEMING) --- */
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* --- HIGH CONTRAST MODE OVERRIDES --- */
+        body.high-contrast {
+            --primary-color: #ffff00;
+            --primary-hover: #e6e600;
+            --secondary-color: #00ffff;
+            --bg-color: #000000;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #00ff00;
+            --border-color: #ffffff;
+            --success-color: #00ff00;
+            --danger-color: #ff0000;
+        }
+
+        /* --- LARGE TEXT MODE --- */
+        body.large-text {
+            font-size: 120%;
+        }
+
+        /* --- RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-base);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Mobile Nav (Hidden by default) */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            justify-content: space-around;
+            padding: 10px;
+            z-index: 100;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            height: var(--header-height);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-color); /* Matches body */
+        }
+
+        .page-title h2 { font-size: 1.5rem; }
+        .page-title p { font-size: 0.9rem; color: var(--text-muted); }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* --- COMPONENTS --- */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        
+        .btn-primary:hover { opacity: 0.9; }
+
+        .btn-block { width: 100%; }
+
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        .input-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: var(--bg-color);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease;
+        }
+
+        /* Course Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .course-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .course-item:hover { transform: translateY(-2px); }
+        
+        .course-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #dbeafe;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--text-main);
+            color: var(--card-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* High Contrast Specifics */
+        body.high-contrast .login-screen { background-color: #000; }
+        body.high-contrast .login-card { border: 2px solid yellow; }
+        
+        /* Quiz Styles */
+        .quiz-option {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            text-align: left;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .quiz-option.correct { background-color: var(--success-color); color: white; border-color: var(--success-color); }
+        .quiz-option.wrong { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
+
+        /* Responsive Media Queries */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .mobile-nav { display: flex; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .header { padding: 0 1rem; }
+            .scroll-area { padding: 1rem; padding-bottom: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="app-container"></div>
+    <div id="toast-container"></div>
+
+    <script>
+        // --- MOCK DATA & STATE ---
+        const state = {
+            user: null, 
+            route: 'login',
+            settings: { highContrast: false, largeText: false },
+            courses: [
+                { id: 1, title: "Intro to HCI Principles", progress: 75, icon: "fa-swatchbook", color: "#e9d5ff", iconColor: "#9333ea" },
+                { id: 2, title: "Advanced JavaScript", progress: 30, icon: "fa-code", color: "#fef9c3", iconColor: "#ca8a04" },
+                { id: 3, title: "UX Research Methods", progress: 0, icon: "fa-magnifying-glass", color: "#dbeafe", iconColor: "#2563eb" },
+                { id: 4, title: "Accessibility Standards", progress: 10, icon: "fa-universal-access", color: "#dcfce7", iconColor: "#16a34a" }
+            ],
+            quiz: {
+                question: "Which Gestalt principle describes how the human eye perceives similar elements as a unified group?",
+                options: ["Proximity", "Similarity", "Closure", "Continuity"],
+                correct: 1,
+                answered: false
+            }
+        };
+
+        // --- CORE FUNCTIONS ---
+        function init() { render(); }
+        function navigate(route) { state.route = route; render(); }
+
+        function login(e) {
+            e.preventDefault();
+            state.user = { name: "Waide Owen", email: "waide@techsynergy.com" }; // From PDF
+            showToast("Login Successful", "success");
+            navigate('dashboard');
+        }
+
+        function logout() {
+            state.user = null;
+            navigate('login');
+        }
+
+        function toggleSetting(key) {
+            state.settings[key] = !state.settings[key];
+            applySettings();
+        }
+
+        function applySettings() {
+            document.body.classList.toggle('high-contrast', state.settings.highContrast);
+            document.body.classList.toggle('large-text', state.settings.largeText);
+            render();
+        }
+
+        function showToast(msg, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'info'}-circle"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (!state.user) {
+                app.innerHTML = renderLogin();
+                return;
+            }
+
+            // Main App Layout
+            app.innerHTML = `
+                ${renderSidebar()}
+                <div class="main-content">
+                    ${renderHeader()}
+                    <div class="scroll-area">
+                        <div class="container">
+                            ${renderContent()}
+                        </div>
+                    </div>
+                </div>
+                ${renderMobileNav()}
+            `;
+        }
+
+        function renderLogin() {
+            const isSignup = state.route === 'signup';
+            return `
+                <div class="login-screen">
+                    <div class="login-card">
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">SkillPath</h1>
+                            <p style="color: var(--text-muted);">TechSynergy Project</p>
+                        </div>
+                        <form onsubmit="login(event)">
+                            ${isSignup ? `
+                                <div class="input-group">
+                                    <label>Full Name</label>
+                                    <input type="text" class="input-control" placeholder="John Doe" required>
+                                </div>
+                            ` : ''}
+                            <div class="input-group">
+                                <label>Email</label>
+                                <input type="email" class="input-control" placeholder="student@example.com" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Password</label>
+                                <input type="password" class="input-control" placeholder="••••••••" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                ${isSignup ? 'Create Account' : 'Sign In'}
+                            </button>
+                        </form>
+                        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                            <a href="#" onclick="navigate('${isSignup ? 'login' : 'signup'}')" style="color: var(--primary-color); text-decoration: none;">
+                                ${isSignup ? 'Already have an account? Log in' : 'No account? Sign up'}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSidebar() {
+            const navItems = [
+                { id: 'dashboard', icon: 'home', label: 'Dashboard' },
+                { id: 'search', icon: 'search', label: 'Resources' },
+                { id: 'quiz', icon: 'brain', label: 'Quiz' },
+                { id: 'profile', icon: 'user', label: 'Profile' },
+                { id: 'settings', icon: 'cog', label: 'Settings' }
+            ];
+            
+            return `
+                <nav class="sidebar">
+                    <div class="brand"><i class="fas fa-layer-group"></i> SkillPath</div>
+                    <div class="nav-links">
+                        ${navItems.map(item => `
+                            <button onclick="navigate('${item.id}')" class="nav-btn ${state.route === item.id ? 'active' : ''}">
+                                <i class="fas fa-${item.icon}"></i> ${item.label}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <button onclick="logout()" class="nav-btn" style="color: var(--danger-color);">
+                        <i class="fas fa-sign-out-alt"></i> Log Out
+                    </button>
+                </nav>
+            `;
+        }
+
+        function renderMobileNav() {
+            const navItems = [
+                { id: 'dashboard', icon: 'home' },
+                { id: 'search', icon: 'search' },
+                { id: 'quiz', icon: 'brain' },
+                { id: 'profile', icon: 'user' },
+                { id: 'settings', icon: 'cog' }
+            ];
+            return `
+                <div class="mobile-nav">
+                    ${navItems.map(item => `
+                        <button onclick="navigate('${item.id}')" class="nav-btn" style="flex-direction: column; gap: 5px; font-size: 0.8rem;">
+                            <i class="fas fa-${item.icon}" style="font-size: 1.2rem; color: ${state.route === item.id ? 'var(--primary-color)' : 'var(--text-muted)'}"></i>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderHeader() {
+            let title = state.route.charAt(0).toUpperCase() + state.route.slice(1);
+            return `
+                <header class="header">
+                    <div class="page-title">
+                        <h2>${title}</h2>
+                        <p>Welcome, ${state.user.name}</p>
+                    </div>
+                    <div class="user-menu">
+                        <i class="fas fa-bell" style="color: var(--text-muted); cursor: pointer;"></i>
+                        <div class="avatar">${state.user.name.charAt(0)}</div>
+                    </div>
+                </header>
+            `;
+        }
+
+        function renderContent() {
+            switch(state.route) {
+                case 'dashboard': return renderDashboard();
+                case 'search': return renderSearch();
+                case 'quiz': return renderQuiz();
+                case 'profile': return renderProfile();
+                case 'settings': return renderSettings();
+                default: return renderDashboard();
+            }
+        }
+
+        function renderDashboard() {
+            const active = state.courses[0];
+            return `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <span style="background: var(--secondary-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase;">Continue Learning</span>
+                            <h3 style="margin-top: 10px;">${active.title}</h3>
+                        </div>
+                        <div style="background: ${active.color}; color: ${active.iconColor}; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.5rem;">
+                            <i class="fas ${active.icon}"></i>
+                        </div>
+                    </div>
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                            <span>Progress</span>
+                            <span>${active.progress}%</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-fill" style="width: ${active.progress}%"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary">Resume Module</button>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Your Learning Path</h3>
+                <div class="grid-2">
+                    ${state.courses.slice(1).map(c => `
+                        <div class="card course-item" style="margin: 0;">
+                            <div class="course-icon" style="background: ${c.color}; color: ${c.iconColor};">
+                                <i class="fas ${c.icon}"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4>${c.title}</h4>
+                                <div class="progress-container" style="height: 6px; margin-top: 8px;">
+                                    <div class="progress-fill" style="width: ${c.progress}%; background-color: #9ca3af;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderSearch() {
+            return `
+                <div class="card">
+                    <div class="input-group" style="margin: 0;">
+                        <div style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 15px; top: 15px; color: var(--text-muted);"></i>
+                            <input type="text" class="input-control" placeholder="Search courses..." style="padding-left: 45px;" oninput="this.parentElement.nextElementSibling.style.opacity = 0.5; setTimeout(() => this.parentElement.nextElementSibling.style.opacity = 1, 300);">
+                        </div>
+                    </div>
+                    <div id="results" style="margin-top: 1.5rem; transition: opacity 0.3s;">
+                        <h4>Recommended</h4>
+                        <div class="grid-2" style="margin-top: 1rem;">
+                            <div class="card" style="margin: 0;">
+                                <div style="height: 100px; background: #ddd; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">Video Preview</div>
+                                <h4>HCI Fundamentals</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">20 mins</p>
+                            </div>
+                            <div class="card" style="margin: 0;">
+                                <div style="height: 100px; background: #ddd; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">Article Preview</div>
+                                <h4>Cognitive Load</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">5 mins read</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuiz() {
+            const q = state.quiz;
+            return `
+                <div class="card" style="text-align: center; max-width: 600px; margin: 0 auto;">
+                    <span style="color: var(--primary-color); font-weight: bold; font-size: 0.9rem;">KNOWLEDGE CHECK</span>
+                    <h2 style="margin: 1rem 0;">${q.question}</h2>
+                    
+                    <div>
+                        ${q.options.map((opt, i) => `
+                            <button onclick="checkAnswer(${i})" class="quiz-option ${q.answered && i === q.correct ? 'correct' : ''} ${q.answered && i !== q.correct ? 'opacity-50' : ''}" ${q.answered ? 'disabled' : ''}>
+                                ${opt}
+                                ${q.answered && i === q.correct ? '<i class="fas fa-check"></i>' : ''}
+                            </button>
+                        `).join('')}
+                    </div>
+                    
+                    ${q.answered ? `<div style="margin-top: 1rem; color: var(--success-color); font-weight: bold;">Correct! +50 XP</div>` : ''}
+                </div>
+            `;
+        }
+
+        function checkAnswer(idx) {
+            state.quiz.answered = true;
+            const btns = document.querySelectorAll('.quiz-option');
+            if(idx !== state.quiz.correct) {
+                btns[idx].classList.add('wrong');
+            }
+            render(); 
+        }
+
+        function renderProfile() {
+            return `
+                <div class="card">
+                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 2rem;">
+                        <div style="width: 80px; height: 80px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem;">${state.user.name.charAt(0)}</div>
+                        <div>
+                            <h2>${state.user.name}</h2>
+                            <p style="color: var(--text-muted);">Student • Joined 2025</p>
+                        </div>
+                    </div>
+                    
+                    <form onsubmit="event.preventDefault(); showToast('Profile Saved', 'success');">
+                        <div class="input-group">
+                            <label>Display Name</label>
+                            <input type="text" class="input-control" value="${state.user.name}">
+                        </div>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" class="input-control" value="${state.user.email}">
+                        </div>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function renderSettings() {
+            return `
+                <div class="card">
+                    <h3>Accessibility Settings</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Customize your viewing experience.</p>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+                        <div>
+                            <strong>High Contrast Mode</strong>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Increases contrast for better visibility.</p>
+                        </div>
+                        <button onclick="toggleSetting('highContrast')" class="btn" style="background: ${state.settings.highContrast ? 'var(--success-color)' : '#ddd'}; color: ${state.settings.highContrast ? 'white' : 'black'};">
+                            ${state.settings.highContrast ? 'ON' : 'OFF'}
+                        </button>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
+                        <div>
+                            <strong>Large Text</strong>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Increases font size by 20%.</p>
+                        </div>
+                        <button onclick="toggleSetting('largeText')" class="btn" style="background: ${state.settings.largeText ? 'var(--success-color)' : '#ddd'}; color: ${state.settings.largeText ? 'white' : 'black'};">
+                            ${state.settings.largeText ? 'ON' : 'OFF'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        init();
+
+    </script>
+</body>
+</html>
